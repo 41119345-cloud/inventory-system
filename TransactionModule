@@ -1,0 +1,22 @@
+// transaction.controller.js
+
+const TransactionService = require('./transaction.service');
+
+// Fungsi CRUD Standar
+const getTransactions = async (req, res) => { /* ... */ };
+
+// Fungsi untuk Transaksi Kompleks
+const createPurchaseOrder = async (req, res) => {
+    try {
+        const { userId, productId, quantity } = req.body;
+        
+        // Memanggil service yang menangani transaksi atomik
+        const result = await TransactionService.processPurchase(userId, productId, quantity);
+        
+        res.status(201).json({ success: true, data: result });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+module.exports = { createPurchaseOrder, getTransactions };
