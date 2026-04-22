@@ -1,0 +1,14 @@
+// transaction.routes.js
+
+const express = require('express');
+const router = express.Router();
+const controller = require('./transaction.controller');
+
+// Route CRUD standar
+router.get('/', controller.getTransactions);
+
+// Route transaksi kompleks
+// POST /api/transactions/purchase
+router.post('/purchase', controller.createPurchaseOrder);
+
+module.exports = router;
