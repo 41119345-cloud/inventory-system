@@ -1,0 +1,29 @@
+// transaction.service.js
+
+const prisma = require('./db-client'); // Contoh menggunakan Prisma
+
+const processPurchase = async (userId, productId, quantity) => {
+    // Memulai transaksi
+    return await prisma.$transaction(async (tx) => {
+        
+        // 1. Cek & Update Stok (Atomic Update)
+        const product = await tx.product.update({
+            where: { id: productId, stock: { gte: quantity } },
+            data: { stock: { decrement: quantity } }
+        });
+
+        if (!product) throw new Error("Stok tidak mencukupi!");
+
+        // 2. Buat Catatan Transaksi
+        const order = await tx.order.create({
+            data: { userId, productId, quantity, total: product.price * quantity }
+        });
+
+        // 3. Catat Log Audit
+        await tx.auditLog.create({
+            data: { message: `User ${userId} membeli ${productId}` }
+        });
+
+        return order;
+    });
+};
